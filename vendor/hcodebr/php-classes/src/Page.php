@@ -20,7 +20,7 @@ class Page {
 		$this->options = array_merge($this->defaults, $opts);
 
 		$config = array(
-		  //  "base_url"      => null,
+		    "base_url"      => null,
 		    "tpl_dir"       => $tpl_dir,//"views/",
 		    "cache_dir"     => "views-cache/",
 		    "debug"         => false
