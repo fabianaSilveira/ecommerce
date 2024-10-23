@@ -6,7 +6,7 @@ use Rain\Tpl;
 
 class Mailer {
 	
-	const USERNAME = "fabiana.silveira74@outlook.com";
+	CONST USERNAME = "fabiana.silveira74@outlook.com";
     CONST PASSWORD = "xxxxxxx";
     CONST NAME_FROM = "Fabiana Silveira";
 
