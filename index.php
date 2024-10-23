@@ -6,6 +6,7 @@ use \Slim\Slim;
 use \Hcode\Page;
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
+use \Hcode\Model\Category;
 
 $app = new Slim();
 
@@ -101,12 +102,19 @@ $app->get('/admin/users/:iduser', function($iduser){
 //salvar novo usuario
 $app->post('/admin/users/create', function(){
 	User::verifyLogin();
-	//var_dump($_POST);
+
 	$user = new User();
 
-	$_POST["inadmin"] = (isset($_POST["inadmin"])?1:0);
+ 	$_POST["inadmin"] = (isset($_POST["inadmin"])) ? 1 : 0;
 
-	$user->setData($_POST);
+ 	$_POST['despassword'] = password_hash($_POST["despassword"], PASSWORD_DEFAULT, [
+
+ 		"cost"=>12
+
+ 	]);
+
+ 	$user->setData($_POST);
+
 	$user->save();
 
 	header("Location: /ecommerce/admin/users");
@@ -141,9 +149,9 @@ $app->get('/admin/forgot', function() {
 
 $app->post('/admin/forgot', function() {
  
-	$User = User::getFotgot($_POST["email"]);
+	$User = User::getForgot($_POST["email"]);
 
-	header("Location: /ecommerce/forgot/sent");
+	header("Location: /ecommerce/admin/forgot/sent");
 	exit;
 });
 
@@ -191,6 +199,81 @@ $app->post('/admin/forgot/reset', function() {
 	$page->setTpl("forgot-reset-success");
 
 });
+
+//lista de categorias
+$app->get('/admin/categories', function() {
+	User::verifyLogin();
+
+	$categories = Category::listAll();
+
+	$page =new PageAdmin();
+	$page->setTpl("categories", [
+		'categories' => $categories
+	]);
+
+});
+
+//pagina create categoria
+$app->get('/admin/categories/create', function() {
+
+	User::verifyLogin();
+	$page =new PageAdmin();
+	$page->setTpl("categories-create");
+
+});
+
+
+//salvar categoria
+$app->post('/admin/categories/create', function() {
+	User::verifyLogin();
+	$category = new Category();
+	$category->setData($_POST);
+	$category->save();
+	header("Location: /ecommerce/admin/categories");
+	exit;
+
+});
+
+//excluir usuario
+$app->get('/admin/categories/:idcategory/delete', function($idcategory){
+	User::verifyLogin();
+    
+	$category = new Category();
+	$category->get((int)$idcategory);
+	$category->delete();
+
+	header("Location: /ecommerce/admin/categories");
+	exit;
+});
+
+//tela editar categoria
+$app->get('/admin/categories/:idcategory', function($idcategory){
+	User::verifyLogin();
+    
+	$category = new Category();
+	$category->get((int)$idcategory);
+
+	$page =new PageAdmin();
+	$page->setTpl("categories-update", [
+		'category'=>$category->getValues()
+	]);
+
+});
+
+//atuailza categoria
+$app->post('/admin/categories/:idcategory', function($idcategory){
+	User::verifyLogin();
+    
+	$category = new Category();
+	$category->get((int)$idcategory);
+	$category->setData($_POST);
+	$category->save();
+
+	header("Location: /ecommerce/admin/categories");
+	exit;
+
+});
+
 
 $app->run();
 
