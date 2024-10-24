@@ -15,7 +15,22 @@ class Product  extends Model{
 
     }
 
-    public function save()
+    public static function checkList($list)
+    {
+        foreach ($list as &$row){
+            $p = new Product();
+
+            //necessario passar pelo setData de products para setar a imagem que está em arquivo no objeto product
+            $p->setData($row);
+
+            $row = $p->getValues();
+
+        }
+
+        return $list;
+    }
+
+     public function save()
     {
         $sql = new Sql();
         $results = $sql->select("CALL sp_products_save(:idproduct, :desproduct, :vlprice, :vlwidth, 
