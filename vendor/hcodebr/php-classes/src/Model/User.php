@@ -12,6 +12,49 @@ class User  extends Model{
     const SECRET = "HcodePhp7_Secret";
     const SECRET_IV = "HcodePhp7_Secret_IV";
 
+    public static function getFromSession()
+	{
+
+		$user = new User();
+
+        //verifica se usuario logado, se está na sessão
+		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
+
+			$user->setData($_SESSION[User::SESSION]);
+		}
+
+		return $user;
+	}
+
+    public static function checkLogin($inadmin = true)
+	{
+
+		if (
+			!isset($_SESSION[User::SESSION])
+			||
+			!$_SESSION[User::SESSION]
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+		) {
+			//Não está logado
+			return false;
+		} else {
+
+            //verica quando tentar acessar uma rota de aministrado
+			if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
+				return true;
+
+            //está logado e não precisa ser um admin
+            } else if ($inadmin === false) {
+				return true;
+
+                //não está logadp
+			} else {
+				return false;
+			}
+		}
+	}
+
     public static function login($login, $password)
     {
         $sql = new Sql();
@@ -41,10 +84,7 @@ class User  extends Model{
 
     public static function verifyLogin($inadmin = true)
     {
-        if ( !isset($_SESSION[User::SESSION])
-             || !$_SESSION[User::SESSION]
-             || !(int)$_SESSION[User::SESSION]["iduser"] > 0
-             || (boolean)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
+        if ( User::checkLogin($inadmin)
            ){
             header("Location: /ecommerce/admin/login");
             exit;
