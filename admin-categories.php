@@ -79,7 +79,8 @@ $app->post('/admin/categories/:idcategory', function($idcategory){
 
 });
 
-
+//rota para a tela Produtos da Categoria
+//ex: http://localhost/ecommerce/admin/categories/1/products
 $app->get('/admin/categories/:idcategory/products', function($idcategory){
 	User::verifyLogin();
     
