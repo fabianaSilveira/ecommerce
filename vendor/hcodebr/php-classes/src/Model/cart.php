@@ -139,6 +139,7 @@ class Cart  extends Model{
             $this->getCalculateTotal();
         }
     
+        //soma dos atributos que estão no carrinho
         public function getProducts()
         {
     
@@ -182,15 +183,22 @@ class Cart  extends Model{
         public function setFreight($nrzipcode)
         {
     
+           
+
             $nrzipcode = str_replace('-', '', $nrzipcode);
     
             $totals = $this->getProductsTotals();
+
+           // var_dump($totals);
+           // exit;
     
             if ($totals['nrqtd'] > 0) {
     
                 if ($totals['vlheight'] < 2) $totals['vlheight'] = 2;
                 if ($totals['vllength'] < 16) $totals['vllength'] = 16;
+                if ($totals['vlwidth'] < 11) $totals['vlwidth'] = 11;
     
+                // array com as variaveis que serão enviados para o service dos correios
                 $qs = http_build_query([
                     'nCdEmpresa' => '',
                     'sDsSenha' => '',
@@ -208,24 +216,31 @@ class Cart  extends Model{
                     'sCdAvisoRecebimento' => 'S'
                 ]);
     
-                $xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?" . $qs);
+                /*
+                SERVIÇO DOS CORREIOS NÃO ESTÁ MAIS DISPONIVEL
+                */
+                //caminho do webservice dos correios
+                // $xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?" . $qs);
+                    // $result = $xml->Servicos->cServico;
     
-                $result = $xml->Servicos->cServico;
+                // if ($result->MsgErro != '') {
     
-                if ($result->MsgErro != '') {
+                //     Cart::setMsgError($result->MsgErro);
+                // } else {
     
-                    Cart::setMsgError($result->MsgErro);
-                } else {
+                //     Cart::clearMsgError();
+                // }
     
-                    Cart::clearMsgError();
-                }
-    
-                $this->setnrdays($result->PrazoEntrega);
-                $this->setvlfreight(Cart::formatValueToDecimal($result->Valor));
+                // $this->setnrdays($result->PrazoEntrega);
+                // $this->setvlfreight(Cart::formatValueToDecimal($result->Valor));
+                $this->setnrdays($totals['nrqtd']*3);
+                $this->setvlfreight($totals['nrqtd']*35);
                 $this->setdeszipcode($nrzipcode);
     
                 $this->save();
     
+                
+                $result = [];
                 return $result;
             } else {
             }
@@ -238,12 +253,14 @@ class Cart  extends Model{
             return str_replace(',', '.', $value);
         }
     
+        //seta mensagem de erro na sessao
         public static function setMsgError($msg)
         {
     
             $_SESSION[Cart::SESSION_ERROR] = $msg;
         }
     
+        //get mensagem da sessão
         public static function getMsgError()
         {
     
@@ -254,6 +271,7 @@ class Cart  extends Model{
             return $msg;
         }
     
+        //limpa sessão
         public static function clearMsgError()
         {
     
