@@ -72,7 +72,7 @@ $app->get('/admin/forgot/sent', function() {
 });
 
 $app->get('/admin/forgot/reset', function() {
-	$user = User::validarForgotDecrypt($_GET["code"]);
+	$user = User::validForgotDecrypt($_GET["code"]);
 
 	$page =new PageAdmin([
 		"header"=>false,
@@ -86,7 +86,7 @@ $app->get('/admin/forgot/reset', function() {
 });
 
 $app->post('/admin/forgot/reset', function() {
-	$forgot = User::validarForgotDecrypt($_POST["code"]);
+	$forgot = User::validForgotDecrypt($_POST["code"]);
 
 	User::setForgotUsed($forgot["idrecovery"]);
 
