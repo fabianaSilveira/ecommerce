@@ -9,13 +9,18 @@ use \Hcode\Mailer;
 class User  extends Model{
 
     const SESSION = "User";
-    const SECRET = "HcodePhp7_Secret";
-    const SECRET_IV = "HcodePhp7_Secret_IV";
+	const SECRET = "HcodePhp7_Secret";
+	const SECRET_IV = "HcodePhp7_Secret_IV";
+	const ERROR = "UserError";
+	const ERROR_REGISTER = "UserErrorRegister";
+	const SUCCESS = "UserSucesss";
 
     public static function getFromSession()
 	{
 
 		$user = new User();
+
+        
 
         //verifica se usuario logado, se está na sessão
 		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
@@ -23,7 +28,7 @@ class User  extends Model{
 			$user->setData($_SESSION[User::SESSION]);
 		}
 
-		return $user;
+       	return $user;
 	}
 
     public static function checkLogin($inadmin = true)
@@ -58,9 +63,9 @@ class User  extends Model{
     public static function login($login, $password)
     {
         $sql = new Sql();
-        $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
-            ":LOGIN"=>$login
-        ));
+        $results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b ON a.idperson = b.idperson WHERE a.deslogin = :LOGIN", array(
+			":LOGIN" => $login
+		));
 
         if (count($results) === 0){
             throw new \Exception("Usuário inxistente ou senha inválida!");
@@ -84,11 +89,15 @@ class User  extends Model{
 
     public static function verifyLogin($inadmin = true)
     {
-        if ( User::checkLogin($inadmin)
-           ){
-            header("Location: /ecommerce/admin/login");
-            exit;
-        }
+        if (!User::checkLogin($inadmin)) {
+
+			if ($inadmin) {
+				header("Location: /ecommerce/admin/login");
+			} else {
+				header("Location: /ecommerce/login");
+			}
+			exit;
+		}
     }
 
     public static function logout()
@@ -111,6 +120,7 @@ class User  extends Model{
            ":desperson"=>$this->getdesperson(),
            ":deslogin"=>$this->getdeslogin(),
            ":despassword"=>$this->getdespassword(),
+         //  ":despassword" => User::getPasswordHash($this->getdespassword()),
            ":desemail"=>$this->getdesemail(),
            ":nrphone"=>$this->getnrphone(),
            ":inadmin"=>$this->getinadmin()
@@ -137,6 +147,7 @@ class User  extends Model{
            ":desperson"=>$this->getdesperson(),
            ":deslogin"=>$this->getdeslogin(),
            ":despassword"=>$this->getdespassword(),
+         //  ":despassword" => User::getPasswordHash($this->getdespassword()),
            ":desemail"=>$this->getdesemail(),
            ":nrphone"=>$this->getnrphone(),
            ":inadmin"=>$this->getinadmin()
@@ -267,6 +278,37 @@ class User  extends Model{
             ":iduser" =>$this->getiduser()
         ));
     }
+
+    public static function getPasswordHash($password)
+	{
+
+		return password_hash($password, PASSWORD_DEFAULT, [
+			'cost' => 12
+		]);
+	}
+
+    public static function setError($msg)
+	{
+
+		$_SESSION[User::ERROR] = $msg;
+	}
+
+	public static function getError()
+	{
+
+		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+
+		User::clearError();
+
+		return $msg;
+	}
+
+	public static function clearError()
+	{
+
+		$_SESSION[User::ERROR] = NULL;
+	}
+
 }
 
 ?>

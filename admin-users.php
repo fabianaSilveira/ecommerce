@@ -47,7 +47,7 @@ $app->get('/admin/users/:iduser', function($iduser){
 });
 
 //salvar novo usuario
-$app->post('/admin/users/create', function(){
+/* $app->post('/admin/users/create', function(){
 	User::verifyLogin();
 
 	$user = new User();
@@ -66,7 +66,27 @@ $app->post('/admin/users/create', function(){
 
 	header("Location: /ecommerce/admin/users");
 	exit;
+}); */
+
+$app->post("/admin/users/create", function() {
+
+	User::verifyLogin();
+
+	$user = new User();
+
+	$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0;
+
+	$_POST['despassword'] = User::getPasswordHash($_POST['despassword']);
+
+	$user->setData($_POST);
+
+	$user->save();
+
+	header("Location: /admin/users");
+	exit;
+
 });
+
 
 //atualizar usuario
 $app->post('/admin/users/:iduser', function($iduser){

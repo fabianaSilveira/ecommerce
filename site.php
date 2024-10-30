@@ -5,6 +5,8 @@ use \Hcode\Page;
 use  \Hcode\Model\Product;
 use \Hcode\Model\Category;
 use \Hcode\Model\Cart;
+use \Hcode\Model\Address;
+use \Hcode\Model\User;
 
 $app->get('/', function() {
 	$products = Product::listAll();
@@ -130,6 +132,59 @@ $app->post("/cart/freight", function(){
 	header("Location: /ecommerce/cart");
 		exit;
 
+});
+
+//chamado ao finalizar compra
+$app->get("/checkout",function(){
+	User::verifyLogin(false);
+
+	$cart = Cart::getFromSession();
+
+	$address = new Address();
+
+	$page = new Page();
+
+
+	$page->setTpl("checkout",[
+		'cart'=>$cart->getValues(),
+		'address'=>$address->getValues()
+	
+	]);
+
+});
+
+//chama tela login de user não admim 
+$app->get("/login",function(){
+
+	$page = new Page();
+	$page->setTpl("login", [
+		'error'=>User::getError() //get erro da session
+	]);
+
+});
+
+//rota para validar o login e colocar o user na session e return para o checkout
+$app->post("/login",function(){
+	
+	try {
+
+		User::login($_POST['login'], $_POST['password']);
+	} catch (Exception $e) {
+
+		User::setError($e->getMessage());
+	}
+
+	header("Location: /ecommerce/checkout");
+	exit;
+
+});
+
+$app->get("/logout", function () {
+
+	User::logout();
+
+	header("Location: /ecommerce/login");
+	exit;
 });
 
 ?>
