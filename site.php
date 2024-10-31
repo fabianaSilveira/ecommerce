@@ -134,23 +134,145 @@ $app->post("/cart/freight", function(){
 
 });
 
-//chamado ao finalizar compra
+//chamado ao clicar "finalizar compra' => http://localhost/ecommerce/cart
+//chamado ao clicka "Atualizar CEP" => http://localhost/ecommerce/checkout?zipcode=&proceed=Finalizar+Compra
 $app->get("/checkout",function(){
 	User::verifyLogin(false);
 
+	$address = new Address();
 	$cart = Cart::getFromSession();
 
-	$address = new Address();
+/* 	var_dump($_GET['zipcode']);
+	exit;
+
+	*/
+//echo "zipcod01".$_GET['zipcode'];
+
+	if (!isset($_GET['zipcode'])  ||
+        (isset($_GET['zipcode']) && !$_GET['zipcode'])) {
+		$_GET['zipcode'] = $cart->getdeszipcode();
+	}
+
+
+/* 	var_dump($_GET['zipcode']);
+	exit;  */
+//	echo "zipcod02".$_GET['zipcode'];
+	if (isset($_GET['zipcode'])) {
+
+		$address->loadFromCEP($_GET['zipcode']);
+
+		$cart->setdeszipcode($_GET['zipcode']);
+
+		$cart->save();
+
+		$cart->getCalculateTotal();
+	}
+
+	if (!$address->getdesaddress()) $address->setdesaddress('');
+	if (!$address->getdesnumber()) $address->setdesnumber('');
+	if (!$address->getdescomplement()) $address->setdescomplement('');
+	if (!$address->getdesdistrict()) $address->setdesdistrict('');
+	if (!$address->getdescity()) $address->setdescity('');
+	if (!$address->getdesstate()) $address->setdesstate('');
+	if (!$address->getdescountry()) $address->setdescountry('');
+	if (!$address->getdeszipcode()) $address->setdeszipcode('');
 
 	$page = new Page();
 
-
-	$page->setTpl("checkout",[
-		'cart'=>$cart->getValues(),
-		'address'=>$address->getValues()
-	
+	$page->setTpl("checkout", [
+		'cart' => $cart->getValues(),
+		'address' => $address->getValues(),
+		'products' => $cart->getProducts(),
+		'error' => Address::getMsgError()
 	]);
 
+});
+
+//chamado ao clicar "continuar" => http://localhost/ecommerce/checkout?zipcode=&proceed=Finalizar+Compra
+$app->post("/checkout",function(){
+	User::verifyLogin(false);
+
+	if (!isset($_POST['zipcode']) || $_POST['zipcode'] === '') {
+		Address::setMsgError("Informe o CEP.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	if (!isset($_POST['desaddress']) || $_POST['desaddress'] === '') {
+		Address::setMsgError("Informe o endereço.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	if (!isset($_POST['desdistrict']) || $_POST['desdistrict'] === '') {
+		Address::setMsgError("Informe o bairro.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	if (!isset($_POST['descity']) || $_POST['descity'] === '') {
+		Address::setMsgError("Informe a cidade.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	if (!isset($_POST['desstate']) || $_POST['desstate'] === '') {
+		Address::setMsgError("Informe o estado.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	if (!isset($_POST['descountry']) || $_POST['descountry'] === '') {
+		Address::setMsgError("Informe o país.");
+		header('Location: /ecommerce/checkout');
+		exit;
+	}
+
+	$user = User::getFromSession();
+
+	$address = new Address();
+
+	$_POST['deszipcode'] = $_POST['zipcode'];
+	$_POST['idperson'] = $user->getidperson();
+
+	$address->setData($_POST);
+
+	//var_dump($address);
+	//exit;
+
+	$address->save();
+
+	header("Location: /ecommerce/order/");
+
+/* 	$cart = Cart::getFromSession();
+
+	$cart->getCalculateTotal();
+
+	$order = new Order();
+
+	$order->setData([
+		'idcart' => $cart->getidcart(),
+		'idaddress' => $address->getidaddress(),
+		'iduser' => $user->getiduser(),
+		'idstatus' => OrderStatus::EM_ABERTO,
+		'vltotal' => $cart->getvltotal()
+	]);
+
+	$order->save(); 
+
+	switch ((int)$_POST['payment-method']) {
+
+		case 1:
+			header("Location: /order/" . $order->getidorder() . "/pagseguro");
+			break;
+
+		case 2:
+			header("Location: /order/" . $order->getidorder() . "/paypal");
+			break;
+	} 
+
+	*/
+	exit;
 });
 
 //chama tela login de user não admim 
