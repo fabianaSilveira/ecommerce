@@ -3,6 +3,72 @@
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
 
+//lista de usuários- entrar pelo link http://localhost/ecommerce/admin/ e
+// logar com perfil admin e 
+// clicar na aba lateral usuários users.html
+//clicar bt alterar senha de um usuario
+$app->get("/admin/users/:iduser/password", function($iduser){
+
+	User::verifyLogin();
+
+	$user = new User();
+
+	$user->get((int)$iduser);
+
+	$page = new PageAdmin();
+
+	$page->setTpl("users-password", [
+		"user"=>$user->getValues(),
+		"msgError"=>User::getError(),
+		"msgSuccess"=>User::getSuccess()
+	]);
+
+});
+
+//Salva alteração de senha do usuário
+// bt alterar senha de um usuario
+$app->post("/admin/users/:iduser/password", function($iduser){
+
+	User::verifyLogin();
+
+	if (!isset($_POST['despassword']) || $_POST['despassword']==='') {
+
+		User::setError("Preencha a nova senha.");
+		header("Location: /ecommerce/admin/users/$iduser/password");
+		exit;
+
+	}
+
+	if (!isset($_POST['despassword-confirm']) || $_POST['despassword-confirm']==='') {
+
+		User::setError("Preencha a confirmação da nova senha.");
+		header("Location: /ecommerce/admin/users/$iduser/password");
+		exit;
+
+	}
+
+	if ($_POST['despassword'] === $_POST['despassword-confirm']) {
+
+		User::setError("A sua nova senha deve ser diferente da atual.");
+		header("Location: /ecommerce/admin/users/$iduser/password");
+		exit;
+	}
+
+	$user = new User();
+
+	$user->get((int)$iduser);
+
+	$user->setPassword(User::getPasswordHash($_POST['despassword']));
+
+	User::setSuccess("Senha alterada com sucesso.");
+
+	header("Location: /ecommerce/admin/users/$iduser/password");
+	exit;
+
+});
+
+
+
 //listar usuarios
 $app->get('/admin/users', function(){
 	User::verifyLogin();
