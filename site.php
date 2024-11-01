@@ -257,37 +257,26 @@ $app->post("/checkout",function(){
 
 	$order->save(); 
 
+	//**** sem pagseguro e sem paypall ****//
 	header("Location: /ecommerce/order/". $order->getidorder());
+    exit;
 
-/* 	$cart = Cart::getFromSession();
 
-	$cart->getCalculateTotal();
 
-	$order = new Order();
-
-	$order->setData([
-		'idcart' => $cart->getidcart(),
-		'idaddress' => $address->getidaddress(),
-		'iduser' => $user->getiduser(),
-		'idstatus' => OrderStatus::EM_ABERTO,
-		'vltotal' => $cart->getvltotal()
-	]);
-
-	$order->save(); 
-
-	switch ((int)$_POST['payment-method']) {
+	//**** para usar pagseguro e pay pal ****//
+/* 	switch ((int)$_POST['payment-method']) {
 
 		case 1:
-			header("Location: /order/" . $order->getidorder() . "/pagseguro");
+			header("Location: /ecommerce/order/" . $order->getidorder() . "/pagseguro");
 			break;
 
 		case 2:
-			header("Location: /order/" . $order->getidorder() . "/paypal");
+			header("Location: /ecommerce/order/" . $order->getidorder() . "/paypal");
 			break;
 	} 
 
-	*/
-	exit;
+
+	exit; */
 });
 
 
