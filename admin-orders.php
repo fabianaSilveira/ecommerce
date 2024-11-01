@@ -9,7 +9,7 @@ use \Hcode\Model\OrderStatus;
 
 //Em lista de pedidos - entrar pelo leink http://localhost/ecommerce/admin/ e
 //                      logar com perfil admin
-//botão status de um pedido listado
+//botão status de um pedido listado, abre a tela order-status.html
 $app->get("/admin/orders/:idorder/status", function($idorder){
 
 	User::verifyLogin();
@@ -30,8 +30,8 @@ $app->get("/admin/orders/:idorder/status", function($idorder){
 
 });
 
-//na tela de status
-//botão salva
+//na tela de status -> order-status.html
+//botão salvar, apos salvar retora para tela ordes.html
 $app->post("/admin/orders/:idorder/status", function($idorder){
 
 	User::verifyLogin();
@@ -60,7 +60,7 @@ $app->post("/admin/orders/:idorder/status", function($idorder){
 
 //Em lista de pedidos - entrar pelo leink http://localhost/ecommerce/admin/ e
 //                      logar com perfil admin
-// Ação do botão "excluir"
+// Ação do botão "excluir" retorna para tela ordes.html
 $app->get("/admin/orders/:idorder/delete", function($idorder){
 
 	User::verifyLogin();
@@ -76,9 +76,10 @@ $app->get("/admin/orders/:idorder/delete", function($idorder){
 
 });
 
-//Em lista de pedidos - entrar pelo leink http://localhost/ecommerce/admin/ e
+//Em lista de pedidos - entrar pelo link http://localhost/ecommerce/admin/ e
 //                      logar com perfil admin
-//botão detalhe -> order.html
+// clicar na aba lateral "pedidos" orders.html
+//botão detalhe  de um dos pedidos listados-> order.html
 $app->get("/admin/orders/:idorder", function($idorder){
 
 	User::verifyLogin();
@@ -99,8 +100,9 @@ $app->get("/admin/orders/:idorder", function($idorder){
 
 });
 
-//lista de pedidos - entrar pelo leink http://localhost/ecommerce/admin/ e
-// logar com perfil admin
+//lista de pedidos - entrar pelo link http://localhost/ecommerce/admin/ e
+// logar com perfil admin e 
+// clicar na aba lateral pedidos orders.html
 $app->get("/admin/orders", function(){
 
 	User::verifyLogin();
