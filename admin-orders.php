@@ -116,7 +116,7 @@ $app->get("/admin/orders", function(){
 
 	} else {
 
-		$pagination = Order::getPage($page);
+		$pagination = Order::getPage($page,1);
 
 	}
 
@@ -126,7 +126,7 @@ $app->get("/admin/orders", function(){
 	{
 
 		array_push($pages, [
-			'href'=>'/admin/orders?'.http_build_query([
+			'href'=>'/ecommerce/admin/orders?'.http_build_query([
 				'page'=>$x+1,
 				'search'=>$search
 			]),
